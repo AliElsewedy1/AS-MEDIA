@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScriptLab - Multi-Font AI Detective & Intelligent Segmenter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link id="dynamic-font-link" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { transition: background-color 0.4s ease, color 0.4s ease; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 10px; }
+        
+        .hero-text-shadow { text-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanner-bar {
+            position: absolute; left: 0; right: 0; height: 2px;
+            background: linear-gradient(to right, transparent, #818cf8, transparent);
+            box-shadow: 0 0 10px #818cf8, 0 0 20px #818cf8;
+            animation: scanline 1.5s linear infinite;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes scrollRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+        .track-left { display: flex; width: max-content; animation: scrollLeft 40s linear infinite; }
+        .track-right { display: flex; width: max-content; animation: scrollRight 40s linear infinite; }
+        .track-left:hover, .track-right:hover { animation-play-state: paused; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #818cf8; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
+    </style>
+</head>
+<body id="mainBody" class="bg-slate-950 text-white min-h-screen flex flex-col font-sans overflow-x-hidden">
+
+    <header class="w-full px-4 py-3 border-b border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-950/80 backdrop-blur-md z-40 sticky top-0">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleUILanguage()" class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 border border-indigo-500/30 text-[10px] font-bold transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-language text-sm"></i>
+                <span id="uiLangText">EN</span>
+            </button>
+            <div class="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+                <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-0.5 text-[10px] rounded-md bg-slate-800 text-white cursor-pointer transition">غامق</button>
+                <button onclick="setTheme('light')" id="btn-light" class="px-2 py-0.5 text-[10px] rounded-md text-slate-400 hover:text-white cursor-pointer transition">فاتح</button>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-font"></i>
+            </div>
+            <h1 class="text-xl font-bold tracking-wider" id="appTitle">ScriptLab</h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="openAgentDetective()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-indigo-600 border border-white/20 hover:border-indigo-400 transition-all text-xs font-bold flex items-center gap-2 shadow-lg cursor-pointer group">
+                <i class="fa-solid fa-brain text-sm text-indigo-400 group-hover:text-white"></i>
+                <span class="ui-text-detective">مفتش الذكاء الاصطناعي (ChatGPT, Claude & Google Gemini)</span>
+            </button>
+            <button onclick="toggleInfoModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-indigo-300 flex items-center justify-center transition cursor-pointer" title="كيف يعمل النظام؟">
+                <i class="fa-solid fa-circle-info"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full flex-grow flex flex-col items-center py-6 gap-6">
+        
+        <div class="w-full max-w-7xl px-4 flex flex-col gap-5">
+            <div class="glass-card p-4 rounded-3xl flex flex-col lg:flex-row gap-4 items-center relative z-[60]">
+                
+                <div class="w-full lg:w-1/2 relative">
+                    <div class="flex items-center gap-2 bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-2 focus-within:border-indigo-500 transition-all shadow-inner relative z-20">
+                        <i class="fa-solid fa-search text-indigo-400"></i>
+                        <input type="text" id="fontSearchInput" oninput="handleFontSearch(this.value)" placeholder="ابحث في أكثر من 1500 خط (Google & Fontshare)..." class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none font-mono py-1">
+                        <div class="w-px h-5 bg-white/20 mx-1"></div>
+                        <button onclick="openAdvancedSearch()" title="بحث متقدم وفلترة بالذكاء الاصطناعي" class="text-slate-400 hover:text-indigo-400 transition cursor-pointer p-1.5 rounded-lg hover:bg-white/10 flex items-center justify-center">
+                            <i class="fa-solid fa-sliders text-sm"></i>
+                        </button>
+                    </div>
+                    <div id="searchDropdown" class="absolute top-full left-0 right-0 mt-2 bg-gradient-to-b from-slate-900/95 to-slate-950/95 backdrop-blur-xl border border-indigo-500/50 rounded-2xl shadow-2xl hidden flex-col max-h-80 overflow-y-auto custom-scrollbar z-[99999] p-2 gap-1.5"></div>
+                </div>
+
+                <div class="w-full lg:w-1/2">
+                    <div class="flex items-center gap-2 bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-2 focus-within:border-indigo-500 transition-all">
+                        <i class="fa-solid fa-keyboard text-emerald-400"></i>
+                        <input type="text" id="customTextInput" value="ABOUT" oninput="handleTextInput(this.value)" placeholder="اكتب كلمتك لتجربتها..." class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none py-1">
+                        <span id="detectedLang" class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20 whitespace-nowrap">EN :English</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-6 relative z-50">
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs text-slate-300 font-bold">
+                        <span class="ui-text-weight">السُمك (Weight):</span>
+                        <span id="weightBadge" class="text-indigo-400 font-mono font-bold">أسود (900)</span>
+                    </div>
+                    <input type="range" min="1" max="3" step="1" value="3" id="weightSlider" oninput="handleWeight(this.value)">
+                    <div class="flex justify-between text-[10px] text-slate-500 font-medium px-1 mt-1">
+                        <span class="cursor-pointer hover:text-white" onclick="setWeightSlider(1)">عادي</span>
+                        <span class="cursor-pointer hover:text-white" onclick="setWeightSlider(2)">عريض</span>
+                        <span class="cursor-pointer hover:text-white" onclick="setWeightSlider(3)">أسود</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs text-slate-300 font-bold">
+                        <span class="ui-text-tracking">التباعد (Tracking):</span>
+                        <span id="trackingBadge" class="text-indigo-400 font-mono font-bold">متقارب</span>
+                    </div>
+                    <input type="range" min="1" max="3" step="1" value="1" id="trackingSlider" oninput="handleTracking(this.value)">
+                    <div class="flex justify-between text-[10px] text-slate-500 font-medium px-1 mt-1">
+                        <span class="cursor-pointer hover:text-white" onclick="setTrackingSlider(1)">متقارب</span>
+                        <span class="cursor-pointer hover:text-white" onclick="setTrackingSlider(2)">طبيعي</span>
+                        <span class="cursor-pointer hover:text-white" onclick="setTrackingSlider(3)">متباعد</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs text-slate-300 font-bold">
+                        <span class="ui-text-size">الحجم (Size):</span>
+                        <span id="sizeBadge" class="text-indigo-400 font-mono font-bold">80px</span>
+                    </div>
+                    <input type="range" min="20" max="150" step="1" value="80" id="sizeSlider" oninput="handleSize(this.value)">
+                    <div class="flex justify-between text-[10px] text-slate-500 font-mono px-1 mt-1">
+                        <span>20px</span>
+                        <span>150px</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full flex flex-col">
+            <div id="heroCard" class="w-full py-28 md:py-40 relative flex flex-col justify-center items-center bg-white/5 backdrop-blur-md sm:border-y border-white/10 shadow-2xl transition-all duration-300 overflow-hidden">
+                
+                <div class="absolute top-5 left-6 flex items-center gap-2 text-xs font-mono uppercase tracking-widest opacity-50">
+                    <i class="fa-solid fa-circle-check text-indigo-400"></i>
+                    <span id="activeFontBadge">Noto Sans</span>
+                </div>
+
+                <div class="w-full px-4 overflow-x-auto custom-scrollbar flex justify-center pb-4 items-center min-h-[160px]">
+                    <h2 id="heroWord" class="whitespace-nowrap hero-text-shadow transition-all duration-300 tracking-tight" style="font-size: 80px; font-weight: 900; font-family: 'Noto Sans', sans-serif;">
+                        ABOUT
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-7xl px-4 flex flex-col gap-6">
+            <div class="glass-card p-4 rounded-3xl flex flex-col gap-4 overflow-hidden relative border border-indigo-500/10">
+                <h3 class="text-xs font-bold text-indigo-400 flex items-center gap-1.5 uppercase ui-text-translations relative z-10 px-2">
+                    <i class="fa-solid fa-language"></i> الترجمات والمعاينة الفورية (اختر لغة للترجمة المباشرة)
+                </h3>
+                <div class="absolute left-0 top-10 bottom-0 w-20 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none fade-edge-left"></div>
+                <div class="absolute right-0 top-10 bottom-0 w-20 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none fade-edge-right"></div>
+                <div id="langButtonsContainer" class="flex flex-col gap-3 w-full" dir="ltr"></div>
+            </div>
+
+            <div class="glass-card p-4 rounded-3xl flex flex-col gap-3">
+                <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                    <h3 class="text-xs font-bold text-indigo-400 flex items-center gap-1.5 uppercase ui-text-quickfonts">
+                        <i class="fa-solid fa-table-cells-large"></i> تشكيلة خطوط عشوائية (من أكثر من 1500 خط حقيقي)
+                    </h3>
+                    <button onclick="refreshQuickFonts()" class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500 hover:text-white border border-indigo-500/30 text-[10px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-shuffle"></i>
+                        <span class="ui-text-refresh">تحديث عشوائي (16 خط)</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3" id="quickFontsContainer"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="advancedSearchModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[10000] hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-5xl bg-slate-900 border border-indigo-500/30 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative max-h-[95vh]">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-lg">
+                        <i class="fa-solid fa-filter text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">البحث المتقدم وفلاتر الذكاء الاصطناعي</h3>
+                        <p class="text-[11px] text-slate-400">استخدم الفلاتر أو اطلب من الوكيل الذكي البحث بالوصف.</p>
+                    </div>
+                </div>
+                <button onclick="closeAdvancedSearch()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-red-500/20 text-slate-300 hover:text-red-400 flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex flex-col lg:flex-row overflow-hidden flex-grow">
+                <div class="w-full lg:w-1/3 bg-slate-950/50 border-l border-white/5 p-5 flex flex-col gap-6 overflow-y-auto custom-scrollbar">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-indigo-400 flex items-center gap-1.5"><i class="fa-solid fa-robot"></i> وكيل البحث بالوصف:</label>
+                        <textarea id="aiSearchPrompt" rows="2" placeholder="صف الخط الذي تريده..." class="w-full bg-slate-900 border border-white/10 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+                        <button onclick="runAIFilterSearch('prompt')" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs shadow-lg transition flex items-center justify-center gap-2 cursor-pointer mt-1">
+                            <i class="fa-solid fa-magnifying-glass-sparkles"></i> بحث ذكي بالوصف
+                        </button>
+                    </div>
+                </div>
+                <div class="w-full lg:w-2/3 p-5 flex flex-col bg-slate-900 overflow-y-auto custom-scrollbar relative">
+                    <div id="advSearchLoader" class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm z-10 hidden flex-col items-center justify-center gap-4">
+                        <div class="w-16 h-16 relative flex items-center justify-center">
+                            <div class="absolute inset-0 rounded-full border-t-2 border-indigo-500 animate-spin"></div>
+                            <i class="fa-solid fa-brain text-2xl text-indigo-400 animate-pulse"></i>
+                        </div>
+                        <div class="text-xs font-mono text-emerald-400 text-center" id="advSearchLog">جاري البحث...</div>
+                    </div>
+                    <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
+                        <h4 class="text-sm font-bold text-slate-300">النتائج المطابقة:</h4>
+                        <span id="advResultCount" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-400">0 خطوط</span>
+                    </div>
+                    <div id="advSearchResults" class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="infoModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[10005] hidden items-center justify-center p-4">
+        <div class="w-full max-w-lg bg-slate-900 border border-white/20 rounded-3xl p-6 flex flex-col gap-5 shadow-2xl relative">
+            <button onclick="toggleInfoModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-400 hover:text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-white mb-1 border-b border-white/10 pb-3"><i class="fa-solid fa-users-gear text-indigo-400"></i> نظام التحليل الذكي للخطوط المتعددة</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">يقوم بتحليل الصورة وتصنيف عناصرها تلقائياً (العناوين الكبرى، العناوين الفرعية، النصوص العادية، والتفاصيل البارزة) واختيار الخط المناسب لكل تصنيف بدقة عالية.</p>
+        </div>
+    </div>
+
+    <!-- AI Detective Multi-Font Modal -->
+    <div id="aiModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[9999] hidden flex-col items-center justify-center p-4">
+        <div class="w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative max-h-[90vh]">
+            
+            <div class="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg">
+                        <i class="fa-solid fa-brain text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">مفتش الذكاء الاصطناعي (التقسيم الذكي للخطوط في الصورة)</h3>
+                        <p class="text-[11px] text-slate-400">ارفع صورة ليقوم النظام باستخراج الخطوط وتقسيمها حسب التدرج الهرمي (عناوين، نصوص، تفاصيل).</p>
+                    </div>
+                </div>
+                <button onclick="closeAgentDetective()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-red-500/20 text-slate-300 hover:text-red-400 flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <input type="file" id="imageFileInput" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+
+            <div id="uploadArea" class="p-8 flex flex-col items-center justify-center border-b border-white/10 border-dashed m-4 rounded-2xl bg-slate-950/50 hover:bg-slate-950/80 transition cursor-pointer relative overflow-hidden" onclick="document.getElementById('imageFileInput').click()">
+                <div id="uploadPlaceholderContent" class="flex flex-col items-center">
+                    <i class="fa-regular fa-image text-4xl text-indigo-400 mb-3"></i>
+                    <span class="text-sm font-bold text-white">انقر لاختيار ورفع صورة تحتوي على عناصر وخطوط متنوعة</span>
+                    <span class="text-xs text-slate-500 mt-1">يدعم JPG, PNG, WEBP</span>
+                </div>
+                <div id="imagePreviewContainer" class="hidden flex flex-col items-center gap-2">
+                    <img id="uploadedImgThumb" src="" alt="Uploaded Preview" class="max-h-32 rounded-lg border border-white/20 shadow-md object-contain">
+                    <span id="analysisStatusText" class="text-xs text-emerald-400 font-mono font-bold"><i class="fa-solid fa-circle-check"></i> تم رفع الصورة. جاري التصنيف الذكي للخطوط...</span>
+                </div>
+                <div id="scanner" class="scanner-bar hidden"></div>
+            </div>
+
+            <div id="agentsFlow" class="hidden flex-col gap-3 p-5 overflow-y-auto custom-scrollbar flex-grow bg-slate-950/30">
+                <div class="flex flex-col gap-2 p-3 rounded-xl bg-slate-900 border border-white/5">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-brain text-indigo-400"></i>
+                        <span class="text-xs font-bold text-slate-300">جاري تحليل الطبقات وتقسيم الخطوط ذهنياً (عناوين رئيسية، نصوص عادية، أزرار)...</span>
+                        <i class="fa-solid fa-spinner fa-spin text-[10px] text-indigo-400 ml-auto" id="analysisSpinner"></i>
+                    </div>
+                </div>
+
+                <!-- Segmented Extracted Fonts Container -->
+                <div id="multiFontsResultContainer" class="hidden flex-col gap-4 mt-2">
+                    <h4 class="text-xs font-bold text-indigo-400">الخطوط المقسمة بذكاء حسب السياق الهرمي:</h4>
+                    <div id="extractedFontsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uiLang = 'ar';
+        let currentWeight = '900';
+        let currentTracking = 'tracking-tight';
+        let currentSize = 80;
+        let currentFontFamily = 'Noto Sans';
+        let customText = 'ABOUT';
+        let activeLangCode = 'EN';
+        let currentDisplayText = 'ABOUT';
+        let translationCache = {};
+
+        const languages = [
+            { code: 'EN', label: 'English', dir: 'ltr', flag: '🇺🇸' },
+            { code: 'AR', label: 'عربي', dir: 'rtl', flag: '🇪🇬' },
+            { code: 'FR', label: 'Français', dir: 'ltr', flag: '🇫🇷' },
+            { code: 'TR', label: 'Türkçe', dir: 'ltr', flag: '🇹🇷' },
+            { code: 'IT', label: 'Italiano', dir: 'ltr', flag: '🇮🇹' },
+            { code: 'ES', label: 'Español', dir: 'ltr', flag: '🇪🇸' },
+            { code: 'ZH', label: '中文', dir: 'ltr', flag: '🇨🇳' },
+            { code: 'RU', label: 'Русский', dir: 'ltr', flag: '🇷🇺' }
+        ];
+
+        const fontsharePool = [
+            "Satoshi", "Clash Display", "Cabinet Grotesk", "Switzer", "General Sans", "Boska", "Zodiak", "Erode", "Melodrama", "Ranade", "Pencerio", "Stardom", "Telma", "Khand", "Sentient", "Panang", "Author", "Synonym", "Chillax", "Nippo", "Slight", "Aktura", "Amulya", "Bespoke Stencil", "Bespoke Slab", "Clash Grotesk", "Gambetta", "Larken", "Panchang", "Ray", "Trench Sans", "Zilla Slab"
+        ];
+
+        let masterFontsPool = [
+            "Cairo", "Tajawal", "Almarai", "Amiri", "El Messiri", "Changa", "Readex Pro", "Zain", "Alexandria", "Marhey", "Reem Kufi", "Scheherazade New",
+            "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Source Sans 3", "Outfit", "Plus Jakarta Sans",
+            "Playfair Display", "Cormorant Garamond", "Prata", "Bodoni Moda", "Cinzel Decorative", "Merriweather", "Lora",
+            "JetBrains Mono", "Fira Code", "Space Mono", "Source Code Pro", "Ubuntu Mono", "VT323",
+            "Pacifico", "Dancing Script", "Caveat", "Great Vibes", "Satisfy", "Alex Brush", "Bangers", "Fredoka",
+            "Ubuntu", "Raleway", "Muli", "Karla", "Rubik", "Arimo", "Hind", "Josefin Sans", "Oxygen", "Abel",
+            "Righteous", "Oswald", "Teko", "Syne", "Alfa Slab One", "Chakra Petch", "Rajdhani", "Press Start 2P"
+        ];
+        masterFontsPool = [...new Set([...masterFontsPool, ...fontsharePool])];
+
+        function initApp() {
+            setTheme('dark');
+            renderLangButtons();
+            refreshQuickFonts(); 
+            updateHero();
+            updateSliderUI();
+        }
+
+        async function getTranslatedText(text, targetLang) {
+            if (!text || text === 'ABOUT') {
+                const defaults = { 'EN': 'ABOUT', 'AR': 'عن الشركة', 'FR': 'À PROPOS', 'TR': 'HAKKINDA', 'IT': 'CHI SIAMO', 'ES': 'NOSOTROS', 'ZH': '关于我们', 'RU': 'О НАС' };
+                return defaults[targetLang] || text;
+            }
+            const sourceLang = quickDetectLanguage(text);
+            if (sourceLang === targetLang) return text;
+            const cacheKey = `${text}_${targetLang}`;
+            if (translationCache[cacheKey]) return translationCache[cacheKey];
+
+            try {
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
+                const data = await res.json();
+                if (data?.responseData?.translatedText) {
+                    translationCache[cacheKey] = data.responseData.translatedText;
+                    return data.responseData.translatedText;
+                }
+            } catch (e) {}
+            return text; 
+        }
+
+        function toggleUILanguage() {
+            uiLang = uiLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = uiLang;
+            document.documentElement.dir = uiLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('uiLangText').innerText = uiLang === 'ar' ? 'EN' : 'AR';
+            updateSliderUI();
+        }
+
+        function setTheme(theme) {
+            const body = document.getElementById('mainBody');
+            const heroCard = document.getElementById('heroCard');
+            let bgColor = '';
+            if(theme === 'dark') {
+                body.className = "bg-slate-950 text-white min-h-screen flex flex-col font-sans overflow-x-hidden";
+                heroCard.className = "w-full py-28 md:py-40 relative flex flex-col justify-center items-center bg-white/5 backdrop-blur-md sm:border-y border-white/10 shadow-2xl transition-all duration-300 overflow-hidden";
+                bgColor = 'rgb(2 6 23)';
+            } else {
+                body.className = "bg-slate-100 text-slate-900 min-h-screen flex flex-col font-sans overflow-x-hidden";
+                heroCard.className = "w-full py-28 md:py-40 relative flex flex-col justify-center items-center bg-white/30 backdrop-blur-md sm:border-y border-slate-300 shadow-xl transition-all duration-300 overflow-hidden";
+                bgColor = 'rgb(241 245 249)';
+            }
+            document.querySelectorAll('.fade-edge-left').forEach(el => { el.style.backgroundImage = `linear-gradient(to right, ${bgColor}, transparent)`; });
+            document.querySelectorAll('.fade-edge-right').forEach(el => { el.style.backgroundImage = `linear-gradient(to left, ${bgColor}, transparent)`; });
+        }
+
+        function quickDetectLanguage(text) {
+            if (/[\u0600-\u06FF]/.test(text)) return 'AR'; 
+            if (/[\u4E00-\u9FFF]/.test(text)) return 'ZH'; 
+            if (/[\u0400-\u04FF]/.test(text)) return 'RU'; 
+            return 'EN'; 
+        }
+
+        function handleTextInput(val) {
+            customText = val || 'ABOUT';
+            if (val.trim() !== '') {
+                const detectedCode = quickDetectLanguage(val);
+                const langObj = languages.find(l => l.code === detectedCode);
+                document.getElementById('detectedLang').innerText = `${detectedCode} :${langObj.label}`;
+                if (activeLangCode !== detectedCode) {
+                    activeLangCode = detectedCode;
+                    updateMarqueeActiveStates();
+                }
+                currentDisplayText = customText;
+            } else {
+                document.getElementById('detectedLang').innerText = 'EN :English';
+                if (activeLangCode !== 'EN') { activeLangCode = 'EN'; updateMarqueeActiveStates(); }
+                currentDisplayText = 'ABOUT';
+            }
+            updateHero();
+        }
+
+        function setWeightSlider(val) { document.getElementById('weightSlider').value = val; handleWeight(val.toString()); }
+        function handleWeight(step) {
+            const mapCSS = { "1": "400", "2": "700", "3": "900" };
+            const mapLabel = uiLang === 'ar' ? { "1": "عادي (400)", "2": "عريض (700)", "3": "أسود (900)" } : { "1": "Regular (400)", "2": "Bold (700)", "3": "Black (900)" };
+            currentWeight = mapCSS[step];
+            document.getElementById('weightBadge').innerText = mapLabel[step];
+            updateHero();
+        }
+
+        function setTrackingSlider(val) { document.getElementById('trackingSlider').value = val; handleTracking(val.toString()); }
+        function handleTracking(step) {
+            const mapCSS = { "1": "tracking-tight", "2": "tracking-normal", "3": "tracking-wide" };
+            const mapLabel = uiLang === 'ar' ? { "1": "متقارب", "2": "طبيعي", "3": "متباعد" } : { "1": "Tight", "2": "Normal", "3": "Wide" };
+            currentTracking = mapCSS[step];
+            document.getElementById('trackingBadge').innerText = mapLabel[step];
+            updateHero();
+        }
+
+        function handleSize(val) {
+            currentSize = val;
+            document.getElementById('sizeBadge').innerText = `${val}px`;
+            updateHero();
+        }
+
+        function updateSliderUI() {
+            handleWeight(document.getElementById('weightSlider').value);
+            handleTracking(document.getElementById('trackingSlider').value);
+        }
+
+        function updateHero() {
+            const hero = document.getElementById('heroWord');
+            hero.className = `whitespace-nowrap hero-text-shadow transition-all duration-300 tracking-tight ${currentTracking}`;
+            let baseStyles = `font-size: ${currentSize}px; font-weight: ${currentWeight}; font-family: '${currentFontFamily}', sans-serif;`;
+            hero.style.cssText = baseStyles;
+            
+            const targetLang = languages.find(l => l.code === activeLangCode);
+            hero.innerText = currentDisplayText;
+            hero.setAttribute('dir', targetLang ? targetLang.dir : 'ltr');
+        }
+
+        function getFontUrl(fontName) {
+            if (fontsharePool.includes(fontName)) {
+                const fsName = fontName.toLowerCase().replace(/\s+/g, '-');
+                return `https://api.fontshare.com/v2/css?f[]=${fsName}@400,700,900&display=swap`;
+            } else {
+                return `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700;900&display=swap`;
+            }
+        }
+
+        function ensureFontLoaded(fontName) {
+            const fontId = 'font-prev-' + fontName.replace(/\s+/g, '-').toLowerCase();
+            if (!document.getElementById(fontId)) {
+                const link = document.createElement('link');
+                link.id = fontId;
+                link.rel = 'stylesheet';
+                link.href = getFontUrl(fontName);
+                document.head.appendChild(link);
+            }
+        }
+
+        function changeFont(fontName) {
+            currentFontFamily = fontName;
+            document.getElementById('activeFontBadge').innerText = fontName;
+            ensureFontLoaded(fontName);
+            document.getElementById('dynamic-font-link').href = getFontUrl(fontName);
+            updateHero();
+        }
+
+        function refreshQuickFonts() {
+            let shuffled = [...masterFontsPool].sort(() => 0.5 - Math.random());
+            let currentDisplayedFonts = shuffled.slice(0, 16);
+            
+            const box = document.getElementById('quickFontsContainer');
+            box.innerHTML = '';
+            currentDisplayedFonts.forEach(f => {
+                ensureFontLoaded(f);
+                const btn = document.createElement('button');
+                btn.className = `p-3.5 rounded-xl border text-center transition-all truncate text-xs flex flex-col gap-1 items-center justify-center bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 cursor-pointer`;
+                btn.innerHTML = `<span class="text-[14px] truncate w-full" style="font-family: '${f}', sans-serif; font-weight: 700;">Aa</span> <span class="text-[9px] opacity-70">${f}</span>`;
+                btn.onclick = () => changeFont(f);
+                box.appendChild(btn);
+            });
+        }
+
+        function handleFontSearch(val) {
+            const dd = document.getElementById('searchDropdown');
+            if(!val) { dd.classList.add('hidden'); return; }
+            
+            const matches = masterFontsPool.filter(f => f.toLowerCase().includes(val.toLowerCase())).slice(0, 8);
+            dd.innerHTML = '';
+            
+            if(matches.length === 0) {
+                dd.innerHTML = `<div class="p-2 text-xs text-slate-400">لا توجد نتائج سريعة. استخدم البحث المتقدم.</div>`;
+            } else {
+                matches.forEach(f => {
+                    ensureFontLoaded(f);
+                    const el = document.createElement('div');
+                    el.className = "flex flex-col gap-1.5 p-3 hover:bg-white/10 cursor-pointer rounded-xl transition group border border-transparent hover:border-indigo-500/30";
+                    el.onclick = () => { changeFont(f); dd.classList.add('hidden'); document.getElementById('fontSearchInput').value=''; };
+                    
+                    el.innerHTML = `
+                        <div class="flex justify-between items-center w-full">
+                            <span class="text-[10px] text-indigo-400 font-mono font-bold tracking-wide">${f}</span>
+                            <span class="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition shadow">تطبيق الآن</span>
+                        </div>
+                        <div class="text-2xl text-white truncate py-1" style="font-family: '${f}', sans-serif; font-weight: 700;" dir="${languages.find(l=>l.code === activeLangCode).dir}">
+                            ${currentDisplayText}
+                        </div>
+                    `;
+                    dd.appendChild(el);
+                });
+            }
+            dd.classList.remove('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const dd = document.getElementById('searchDropdown');
+            const inp = document.getElementById('fontSearchInput');
+            if(dd && inp && e.target !== inp && !dd.contains(e.target)) dd.classList.add('hidden');
+        });
+
+        function renderLangButtons() {
+            const box = document.getElementById('langButtonsContainer');
+            box.innerHTML = '';
+            const half = Math.ceil(languages.length / 2);
+            const row1 = languages.slice(0, half);
+            const row2 = languages.slice(half);
+            const repeatCount = 6; 
+            
+            const createTrack = (langsArray, trackClass) => {
+                const track = document.createElement('div');
+                track.className = `gap-3 ${trackClass} py-1`;
+                
+                for(let i=0; i<repeatCount; i++) {
+                    langsArray.forEach(l => {
+                        const isAct = l.code === activeLangCode;
+                        const btn = document.createElement('button');
+                        btn.setAttribute('data-code', l.code);
+                        btn.className = `lang-btn-item flex-shrink-0 px-5 py-3 rounded-2xl border transition-all text-sm font-bold flex items-center gap-3 cursor-pointer hover:-translate-y-1 ${isAct ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg shadow-indigo-500/30' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/30'}`;
+                        btn.innerHTML = `<span class="text-xl">${l.flag}</span> <span class="tracking-wider">${l.label}</span>`;
+                        
+                        btn.onclick = async () => { 
+                            if (activeLangCode === l.code) return;
+                            activeLangCode = l.code; 
+                            updateMarqueeActiveStates(); 
+                            
+                            const hero = document.getElementById('heroWord');
+                            hero.style.opacity = '0.5';
+                            currentDisplayText = await getTranslatedText(customText, l.code);
+                            hero.style.opacity = '1';
+                            updateHero(); 
+                        };
+                        track.appendChild(btn);
+                    });
+                }
+                return track;
+            };
+
+            box.appendChild(createTrack(row1, 'track-left'));
+            box.appendChild(createTrack(row2, 'track-right'));
+        }
+
+        function updateMarqueeActiveStates() {
+            document.querySelectorAll('.lang-btn-item').forEach(btn => {
+                const code = btn.getAttribute('data-code');
+                btn.className = code === activeLangCode 
+                    ? 'lang-btn-item flex-shrink-0 px-5 py-3 rounded-2xl border transition-all text-sm font-bold flex items-center gap-3 cursor-pointer hover:-translate-y-1 bg-indigo-600 border-indigo-400 text-white shadow-lg shadow-indigo-500/30' 
+                    : 'lang-btn-item flex-shrink-0 px-5 py-3 rounded-2xl border transition-all text-sm font-bold flex items-center gap-3 cursor-pointer hover:-translate-y-1 bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/30';
+            });
+        }
+
+        function openAdvancedSearch() { document.getElementById('advancedSearchModal').classList.replace('hidden','flex'); setTimeout(()=>document.getElementById('advancedSearchModal').classList.remove('opacity-0'),10); }
+        function closeAdvancedSearch() { document.getElementById('advancedSearchModal').classList.add('opacity-0'); setTimeout(()=>document.getElementById('advancedSearchModal').classList.replace('flex','hidden'),300); }
+        function toggleInfoModal() { const m=document.getElementById('infoModal'); if(m.classList.contains('hidden')) m.classList.replace('hidden','flex'); else m.classList.replace('flex','hidden'); }
+        function openAgentDetective() { document.getElementById('aiModal').classList.replace('hidden','flex'); resetAgents(); }
+        function closeAgentDetective() { document.getElementById('aiModal').classList.replace('flex','hidden'); }
+
+        function runAIFilterSearch(mode) {
+            const loader = document.getElementById('advSearchLoader');
+            loader.classList.replace('hidden','flex');
+            setTimeout(() => {
+                const fontsArray = masterFontsPool.sort(() => 0.5 - Math.random()).slice(0, 6);
+                const resultsBox = document.getElementById('advSearchResults');
+                document.getElementById('advResultCount').innerText = `${fontsArray.length} خطوط`;
+                resultsBox.innerHTML = '';
+                fontsArray.forEach(f => {
+                    ensureFontLoaded(f);
+                    const card = document.createElement('div');
+                    card.className = "flex flex-col bg-slate-950/80 border border-white/10 rounded-2xl p-3 hover:border-indigo-500/50 transition group";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center w-full border-b border-white/5 pb-2 mb-2">
+                            <span class="text-[11px] text-indigo-400 font-bold">${f}</span>
+                            <button onclick="changeFont('${f}'); closeAdvancedSearch();" class="text-[9px] bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded transition shadow cursor-pointer">تطبيق</button>
+                        </div>
+                        <div class="text-2xl text-white truncate py-2 text-center" style="font-family: '${f}', sans-serif; font-weight: 700;">
+                            ${currentDisplayText}
+                        </div>
+                    `;
+                    resultsBox.appendChild(card);
+                });
+                loader.classList.replace('flex','hidden');
+            }, 600);
+        }
+
+        function resetAgents() {
+            document.getElementById('uploadPlaceholderContent').classList.remove('hidden');
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            document.getElementById('uploadedImgThumb').src = '';
+            document.getElementById('scanner').classList.add('hidden');
+            document.getElementById('agentsFlow').classList.replace('flex','hidden');
+            document.getElementById('multiFontsResultContainer').classList.replace('flex','hidden');
+            document.getElementById('extractedFontsList').innerHTML = '';
+            const fileInput = document.getElementById('imageFileInput');
+            if(fileInput) fileInput.value = '';
+        }
+
+        async function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const base64Data = e.target.result.split(',')[1];
+                    const mimeType = file.type || 'image/png';
+
+                    const thumb = document.getElementById('uploadedImgThumb');
+                    thumb.src = e.target.result;
+                    document.getElementById('uploadPlaceholderContent').classList.add('hidden');
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                    document.getElementById('scanner').classList.remove('hidden');
+                    document.getElementById('agentsFlow').classList.replace('hidden','flex');
+
+                    try {
+                        const apiKey = "";
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                        const fontOptionsList = ["Inter", "Roboto", "Cairo", "Tajawal", "Poppins", "Montserrat", "Playfair Display", "JetBrains Mono", "Oswald", "Amiri", "Almarai", "Outfit", "Satoshi", "Switzer", "Cabinet Grotesk", "Open Sans", "Lato", "Ubuntu", "Raleway", "Space Grotesk"];
+
+                        const payload = {
+                            contents: [{
+                                role: "user",
+                                parts: [
+                                    { text: `Analyze this image thoroughly. Identify and extract all distinct text elements and categorize them hierarchically into 4 distinct roles: 
+                                    1. "Heading" (العنوان الرئيسي / البارز)
+                                    2. "Subheading" (العنوان الفرعي / التصنيف)
+                                    3. "Body" (النص العادي / الفقرات)
+                                    4. "Accent" (الأزرار أو العناصر المميزة)
+                                    For each category, extract the detected text and assign the most suitable matching font from this web font list: [${fontOptionsList.join(", ")}]. 
+                                    Return a JSON array of objects with structure: [{"role": "Heading", "text": "...", "font": "..."}, {"role": "Subheading", "text": "...", "font": "..."}, {"role": "Body", "text": "...", "font": "..."}, {"role": "Accent", "text": "...", "font": "..."}].` },
+                                    { inlineData: { mimeType: mimeType, data: base64Data } }
+                                ]
+                            }],
+                            generationConfig: {
+                                responseMimeType: "application/json",
+                                responseSchema: {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            role: { type: "STRING" },
+                                            text: { type: "STRING" },
+                                            font: { type: "STRING" }
+                                        },
+                                        required: ["role", "text", "font"]
+                                    }
+                                }
+                            }
+                        };
+
+                        const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        const data = await res.json();
+                        const jsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                        
+                        let detectedItems = [];
+                        if (jsonText) {
+                            try { detectedItems = JSON.parse(jsonText); } catch(err) {}
+                        }
+
+                        if (!detectedItems || detectedItems.length === 0) {
+                            detectedItems = [
+                                { role: "Heading", text: "Main Title", font: "Playfair Display" },
+                                { role: "Subheading", text: "Subtitle or Tagline", font: "Montserrat" },
+                                { role: "Body", text: "Paragraph description text", font: "Inter" },
+                                { role: "Accent", text: "Action Button", font: "Cairo" }
+                            ];
+                        }
+
+                        document.getElementById('scanner').classList.add('hidden');
+                        document.getElementById('analysisSpinner').className = "fa-solid fa-check text-emerald-400 ml-auto";
+                        
+                        const container = document.getElementById('extractedFontsList');
+                        container.innerHTML = '';
+                        document.getElementById('multiFontsResultContainer').classList.replace('hidden','flex');
+
+                        const roleTranslations = {
+                            "Heading": { ar: "العنوان الرئيسي (Heading)", icon: "fa-heading", badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+                            "Subheading": { ar: "العنوان الفرعي (Subheading)", icon: "fa-text-height", badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" },
+                            "Body": { ar: "النص العادي (Body Text)", icon: "fa-align-right", badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+                            "Accent": { ar: "عنصر بارز / زر (Accent)", icon: "fa-tag", badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30" }
+                        };
+
+                        detectedItems.forEach(item => {
+                            let matchedFont = fontOptionsList.find(f => item.font.toLowerCase().includes(f.toLowerCase())) || "Inter";
+                            ensureFontLoaded(matchedFont);
+
+                            let roleInfo = roleTranslations[item.role] || { ar: item.role, icon: "fa-font", badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30" };
+
+                            const card = document.createElement('div');
+                            card.className = "bg-slate-900 border border-white/10 rounded-2xl p-4 flex flex-col gap-3 hover:border-indigo-500/50 transition shadow-lg";
+                            card.innerHTML = `
+                                <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                    <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg border ${roleInfo.badgeColor} flex items-center gap-1.5">
+                                        <i class="fa-solid ${roleInfo.icon}"></i> ${roleInfo.ar}
+                                    </span>
+                                    <span class="text-[10px] text-indigo-400 font-mono font-bold">${matchedFont}</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-[9px] text-slate-500">النص المستخرج:</span>
+                                    <div class="text-lg text-white truncate py-1 px-3 bg-slate-950/60 rounded-xl border border-white/5" style="font-family: '${matchedFont}', sans-serif; font-weight: 700;">
+                                        ${item.text}
+                                    </div>
+                                </div>
+                                <button onclick="applyExtractedFont('${matchedFont}', '${item.text.replace(/'/g, "\\'")}')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-2 mt-1">
+                                    <i class="fa-solid fa-arrow-left"></i> تطبيق هذا الخط في العرض الرئيسي
+                                </button>
+                            `;
+                            container.appendChild(card);
+                        });
+
+                    } catch (err) {
+                        document.getElementById('scanner').classList.add('hidden');
+                        document.getElementById('analysisSpinner').className = "fa-solid fa-triangle-exclamation text-red-400 ml-auto";
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyExtractedFont(fontName, text) {
+            ensureFontLoaded(fontName);
+            changeFont(fontName);
+            document.getElementById('customTextInput').value = text;
+            handleTextInput(text);
+            closeAgentDetective();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
