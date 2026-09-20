@@ -53,32 +53,29 @@
 </head>
 <body id="mainBody" class="bg-slate-950 text-white min-h-screen flex flex-col font-sans overflow-x-hidden">
 
-    <header class="w-full px-3 sm:px-6 py-3 border-b border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-950/95 backdrop-blur-md z-[100] sticky top-0 shadow-lg">
-        <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-start">
-            <button onclick="toggleUILanguage()" class="px-2.5 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 border border-indigo-500/30 text-[10px] font-bold transition flex items-center gap-1.5 cursor-pointer">
+    <header class="w-full px-3 sm:px-6 py-2.5 border-b border-white/10 flex flex-row justify-between items-center gap-2 bg-slate-950/95 backdrop-blur-md z-[100] sticky top-0 shadow-lg">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="toggleUILanguage()" class="px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 border border-indigo-500/30 text-[10px] font-bold transition flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-language text-sm"></i>
                 <span id="uiLangText">EN</span>
             </button>
-            <div class="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+            <div class="hidden sm:flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
                 <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-0.5 text-[10px] rounded-md bg-slate-800 text-white cursor-pointer transition">غامق</button>
                 <button onclick="setTheme('light')" id="btn-light" class="px-2 py-0.5 text-[10px] rounded-md text-slate-400 hover:text-white cursor-pointer transition">فاتح</button>
             </div>
         </div>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2">
             <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg text-xs sm:text-sm">
                 <i class="fa-solid fa-font"></i>
             </div>
-            <h1 class="text-lg sm:text-xl font-bold tracking-wider" id="appTitle">ScriptLab</h1>
+            <h1 class="text-base sm:text-xl font-bold tracking-wider" id="appTitle">ScriptLab</h1>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
-            <button onclick="openAgentDetective()" class="px-3 sm:px-4 py-2 rounded-xl bg-white/10 hover:bg-indigo-600 border border-white/20 hover:border-indigo-400 transition-all text-xs font-bold flex items-center gap-2 shadow-lg cursor-pointer group">
+        <div class="flex items-center gap-2">
+            <button onclick="openAgentDetective()" class="px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/10 hover:bg-indigo-600 border border-white/20 hover:border-indigo-400 transition-all text-xs font-bold flex items-center gap-1.5 shadow-lg cursor-pointer group">
                 <i class="fa-solid fa-brain text-sm text-indigo-400 group-hover:text-white"></i>
-                <span class="ui-text-detective text-[11px] sm:text-xs">مفتش الذكاء الاصطناعي</span>
-            </button>
-            <button onclick="toggleInfoModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-indigo-300 flex items-center justify-center transition cursor-pointer" title="كيف يعمل النظام؟">
-                <i class="fa-solid fa-circle-info"></i>
+                <span class="ui-text-detective text-[11px] sm:text-xs">تحليل بالذكاء الاصطناعي</span>
             </button>
         </div>
     </header>
@@ -151,7 +148,7 @@
         </div>
 
         <div class="w-full flex flex-col relative z-20">
-            <div id="heroCard" class="w-full py-20 sm:py-32 md:py-40 relative flex flex-col justify-center items-center bg-white/5 backdrop-blur-md sm:border-y border-white/10 shadow-2xl transition-all duration-300 overflow-hidden px-4">
+            <div id="heroCard" class="w-full py-16 sm:py-28 md:py-36 relative flex flex-col justify-center items-center bg-white/5 backdrop-blur-md sm:border-y border-white/10 shadow-2xl transition-all duration-300 overflow-hidden px-4">
                 
                 <div class="absolute top-4 left-4 sm:top-5 sm:left-6 flex items-center gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-widest opacity-50">
                     <i class="fa-solid fa-circle-check text-indigo-400"></i>
@@ -167,12 +164,9 @@
         </div>
 
         <div class="w-full max-w-7xl flex flex-col gap-4 sm:gap-6 relative z-30">
-            <div class="glass-card p-2.5 rounded-2xl sm:rounded-3xl flex flex-col gap-1.5 overflow-hidden relative border border-indigo-500/10">
-                <h3 class="text-[11px] sm:text-xs font-bold text-indigo-400 flex items-center gap-1.5 uppercase ui-text-translations relative z-10 px-2">
-                    <i class="fa-solid fa-language"></i> الترجمات الفورية (اختر لغة للترجمة المباشرة)
-                </h3>
-                <div class="absolute left-0 top-6 bottom-0 w-12 sm:w-16 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none fade-edge-left"></div>
-                <div class="absolute right-0 top-6 bottom-0 w-12 sm:w-16 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none fade-edge-right"></div>
+            <div class="glass-card py-1.5 px-2.5 rounded-xl sm:rounded-2xl flex flex-col gap-1 overflow-hidden relative border border-indigo-500/15">
+                <div class="absolute left-0 top-2 bottom-0 w-6 sm:w-10 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none fade-edge-left"></div>
+                <div class="absolute right-0 top-2 bottom-0 w-6 sm:w-10 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none fade-edge-right"></div>
                 <div id="langButtonsContainer" class="flex flex-col gap-1 w-full overflow-hidden" dir="ltr"></div>
             </div>
 
@@ -226,14 +220,6 @@
         </div>
     </div>
 
-    <div id="infoModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[200] hidden items-center justify-center p-3 sm:p-4">
-        <div class="w-full max-w-lg bg-slate-900 border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col gap-4 sm:gap-5 shadow-2xl relative">
-            <button onclick="toggleInfoModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-400 hover:text-white flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-base sm:text-lg font-bold text-white mb-1 border-b border-white/10 pb-3"><i class="fa-solid fa-users-gear text-indigo-400"></i> نظام التحليل الذكي للخطوط المتعددة</h3>
-            <p class="text-xs text-slate-300 leading-relaxed">يقوم بتحليل الصورة وتصنيف عناصرها تلقائياً (العناوين الكبرى، العناوين الفرعية، النصوص العادية، والتفاصيل البارزة) واختيار الخط المناسب لكل تصنيف بدقة عالية.</p>
-        </div>
-    </div>
-
     <div id="aiModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[200] hidden flex-col items-center justify-center p-3 sm:p-4">
         <div class="w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden relative max-h-[92vh]">
             
@@ -243,8 +229,8 @@
                         <i class="fa-solid fa-brain"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">مفتش الذكاء الاصطناعي (التقسيم الذكي للخطوط في الصورة)</h3>
-                        <p class="text-[10px] sm:text-[11px] text-slate-400">ارفع صورة ليقوم النظام باستخراج الخطوط وتقسيمها حسب التدرج الهرمي.</p>
+                        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">تحليل بالذكاء الاصطناعي (مكتبة الخطوط الواسعة)</h3>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400">ارفع صورة ليقوم وكلاء الذكاء الاصطناعي (ChatGPT, Claude, Gemini) بمسحها ومقارنتها عبر مكتبة الخطوط الواسعة.</p>
                     </div>
                 </div>
                 <button onclick="closeAgentDetective()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-red-500/20 text-slate-300 hover:text-red-400 flex items-center justify-center transition cursor-pointer">
@@ -252,17 +238,25 @@
                 </button>
             </div>
 
+            <!-- Notice / Guide Banner displayed right inside the modal upon opening -->
+            <div class="mx-4 mt-4 p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl flex items-start gap-3 text-xs text-indigo-200">
+                <i class="fa-solid fa-users-gear text-indigo-400 text-sm mt-0.5"></i>
+                <div class="leading-relaxed">
+                    <strong>نظام التحليل الذكي للخطوط المتعددة:</strong> يقوم بتحليل الصورة عبر مكتبة واسعة بالذكاء الاصطناعي وتصنيف عناصرها تلقائياً (العناوين الكبرى، العناوين الفرعية، النصوص العادية، والتفاصيل البارزة) واختيار الخط المناسب لكل تصنيف بدقة عالية.
+                </div>
+            </div>
+
             <input type="file" id="imageFileInput" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
 
             <div id="uploadArea" class="p-6 sm:p-8 flex flex-col items-center justify-center border-b border-white/10 border-dashed m-3 sm:m-4 rounded-2xl bg-slate-950/50 hover:bg-slate-950/80 transition cursor-pointer relative overflow-hidden" onclick="document.getElementById('imageFileInput').click()">
                 <div id="uploadPlaceholderContent" class="flex flex-col items-center text-center">
                     <i class="fa-regular fa-image text-3xl sm:text-4xl text-indigo-400 mb-3"></i>
-                    <span class="text-xs sm:text-sm font-bold text-white">انقر لاختيار ورفع صورة تحتوي على عناصر وخطوط متنوعة</span>
+                    <span class="text-xs sm:text-sm font-bold text-white">انقر لاختيار ورفع صورة لتحليل خطوطها عبر قاعدة البيانات الواسعة</span>
                     <span class="text-[11px] text-slate-500 mt-1">يدعم JPG, PNG, WEBP</span>
                 </div>
                 <div id="imagePreviewContainer" class="hidden flex flex-col items-center gap-2">
                     <img id="uploadedImgThumb" src="" alt="Uploaded Preview" class="max-h-28 sm:max-h-32 rounded-lg border border-white/20 shadow-md object-contain">
-                    <span id="analysisStatusText" class="text-[11px] sm:text-xs text-emerald-400 font-mono font-bold text-center"><i class="fa-solid fa-circle-check"></i> تم رفع الصورة. جاري التصنيف الذكي للخطوط...</span>
+                    <span id="analysisStatusText" class="text-[11px] sm:text-xs text-emerald-400 font-mono font-bold text-center"><i class="fa-solid fa-circle-check"></i> تم رفع الصورة. جاري تحليل الوكلاء (ChatGPT, Claude, Gemini)...</span>
                 </div>
                 <div id="scanner" class="scanner-bar hidden"></div>
             </div>
@@ -271,13 +265,13 @@
                 <div class="flex flex-col gap-2 p-3 rounded-xl bg-slate-900 border border-white/5">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-brain text-indigo-400 text-xs sm:text-sm"></i>
-                        <span class="text-[11px] sm:text-xs font-bold text-slate-300">جاري تحليل الطبقات وتقسيم الخطوط ذهنياً (عناوين، نصوص، تفاصيل)...</span>
+                        <span id="agentStepText" class="text-[11px] sm:text-xs font-bold text-slate-300">مزامنة وكلاء الذكاء الاصطناعي (ChatGPT, Claude, Gemini) لمسح مكتبة الخطوط...</span>
                         <i class="fa-solid fa-spinner fa-spin text-[10px] text-indigo-400 ml-auto" id="analysisSpinner"></i>
                     </div>
                 </div>
 
                 <div id="multiFontsResultContainer" class="hidden flex-col gap-3 sm:gap-4 mt-2">
-                    <h4 class="text-xs font-bold text-indigo-400">الخطوط المقسمة بذكاء حسب السياق الهرمي:</h4>
+                    <h4 class="text-xs font-bold text-indigo-400">الخطوط المستخرجة والمصنفة بذكاء من المكتبة الواسعة:</h4>
                     <div id="extractedFontsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                 </div>
             </div>
@@ -317,7 +311,9 @@
             "JetBrains Mono", "Fira Code", "Space Mono", "Source Code Pro", "Ubuntu Mono", "VT323",
             "Pacifico", "Dancing Script", "Caveat", "Great Vibes", "Satisfy", "Alex Brush", "Bangers", "Fredoka",
             "Ubuntu", "Raleway", "Muli", "Karla", "Rubik", "Arimo", "Hind", "Josefin Sans", "Oxygen", "Abel",
-            "Righteous", "Oswald", "Teko", "Syne", "Alfa Slab One", "Chakra Petch", "Rajdhani", "Press Start 2P"
+            "Righteous", "Oswald", "Teko", "Syne", "Alfa Slab One", "Chakra Petch", "Rajdhani", "Press Start 2P",
+            "Epilogue", "Mulish", "Nunito Sans", "Quicksand", "Nunito", "Comfortaa", "Varela Round", "Dosis", "Arvo", "Cabin",
+            "Signika", "Parisienne", "Megrim", "Roboto Condensed", "Noto Sans", "Noto Serif", "Noto Sans Mono", "Vazirmatn", "Alexandria"
         ];
         masterFontsPool = [...new Set([...masterFontsPool, ...fontsharePool])];
 
@@ -364,11 +360,11 @@
             let bgColor = '';
             if(theme === 'dark') {
                 body.className = "bg-slate-950 text-white min-h-screen flex flex-col font-sans overflow-x-hidden";
-                heroCard.className = "w-full py-20 sm:py-32 md:py-40 relative flex flex-col justify-center items-center bg-white/5 backdrop-blur-md sm:border-y border-white/10 shadow-2xl transition-all duration-300 overflow-hidden px-4";
+                heroCard.className = "w-full py-16 sm:py-28 md:py-36 relative flex flex-col justify-center items-center bg-white/5 backdrop-blur-md sm:border-y border-white/10 shadow-2xl transition-all duration-300 overflow-hidden px-4";
                 bgColor = 'rgb(2 6 23)';
             } else {
                 body.className = "bg-slate-100 text-slate-900 min-h-screen flex flex-col font-sans overflow-x-hidden";
-                heroCard.className = "w-full py-20 sm:py-32 md:py-40 relative flex flex-col justify-center items-center bg-white/30 backdrop-blur-md sm:border-y border-slate-300 shadow-xl transition-all duration-300 overflow-hidden px-4";
+                heroCard.className = "w-full py-16 sm:py-28 md:py-36 relative flex flex-col justify-center items-center bg-white/30 backdrop-blur-md sm:border-y border-slate-300 shadow-xl transition-all duration-300 overflow-hidden px-4";
                 bgColor = 'rgb(241 245 249)';
             }
             document.querySelectorAll('.fade-edge-left').forEach(el => { el.style.backgroundImage = `linear-gradient(to right, ${bgColor}, transparent)`; });
@@ -539,8 +535,8 @@
                         const isAct = l.code === activeLangCode;
                         const btn = document.createElement('button');
                         btn.setAttribute('data-code', l.code);
-                        btn.className = `lang-btn-item flex-shrink-0 px-2 sm:px-2.5 py-1 rounded-lg border transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 ${isAct ? 'bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-500/30' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/30'}`;
-                        btn.innerHTML = `<span class="text-sm sm:text-base">${l.flag}</span> <span class="tracking-wider text-[10px] sm:text-[11px]">${l.label}</span>`;
+                        btn.className = `lang-btn-item flex-shrink-0 px-2 sm:px-2.5 py-0.5 rounded-lg border transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 ${isAct ? 'bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-500/30' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/30'}`;
+                        btn.innerHTML = `<span class="text-xs sm:text-sm">${l.flag}</span> <span class="tracking-wider text-[10px] sm:text-[11px]">${l.label}</span>`;
                         
                         btn.onclick = async () => { 
                             if (activeLangCode === l.code) return;
@@ -567,14 +563,13 @@
             document.querySelectorAll('.lang-btn-item').forEach(btn => {
                 const code = btn.getAttribute('data-code');
                 btn.className = code === activeLangCode 
-                    ? 'lang-btn-item flex-shrink-0 px-2 sm:px-2.5 py-1 rounded-lg border transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-500/30' 
-                    : 'lang-btn-item flex-shrink-0 px-2 sm:px-2.5 py-1 rounded-lg border transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/30';
+                    ? 'lang-btn-item flex-shrink-0 px-2 sm:px-2.5 py-0.5 rounded-lg border transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-500/30' 
+                    : 'lang-btn-item flex-shrink-0 px-2 sm:px-2.5 py-0.5 rounded-lg border transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/30';
             });
         }
 
         function openAdvancedSearch() { document.getElementById('advancedSearchModal').classList.replace('hidden','flex'); setTimeout(()=>document.getElementById('advancedSearchModal').classList.remove('opacity-0'),10); }
         function closeAdvancedSearch() { document.getElementById('advancedSearchModal').classList.add('opacity-0'); setTimeout(()=>document.getElementById('advancedSearchModal').classList.replace('flex','hidden'),300); }
-        function toggleInfoModal() { const m=document.getElementById('infoModal'); if(m.classList.contains('hidden')) m.classList.replace('hidden','flex'); else m.classList.replace('flex','hidden'); }
         function openAgentDetective() { document.getElementById('aiModal').classList.replace('hidden','flex'); resetAgents(); }
         function closeAgentDetective() { document.getElementById('aiModal').classList.replace('flex','hidden'); }
 
@@ -601,7 +596,7 @@
                 <div id="${loadingId}" class="flex items-start gap-3">
                     <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[11px] sm:text-xs shrink-0 font-bold"><i class="fa-solid fa-robot"></i></div>
                     <div class="bg-slate-900 border border-white/10 p-3.5 sm:p-4 rounded-2xl text-xs text-slate-400 flex items-center gap-2">
-                        <i class="fa-solid fa-spinner fa-spin"></i> جاري استشارة ChatGPT وفهرسة الخطوط...
+                        <i class="fa-solid fa-spinner fa-spin"></i> جاري استشارة ChatGPT وفهرسة المكتبة الواسعة...
                     </div>
                 </div>
             `;
@@ -611,9 +606,9 @@
                 const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
                 
-                const sampleFontsPoolStr = masterFontsPool.slice(0, 100).join(", ");
+                const sampleFontsPoolStr = masterFontsPool.join(", ");
                 const prompt = `You are an expert AI typography and design assistant connected to ChatGPT API. The user is asking/discussing: "${userMsg}". 
-                Available fonts in our database include: [${sampleFontsPoolStr}]. 
+                Available fonts in our wide library include: [${sampleFontsPoolStr}]. 
                 Respond in Arabic, acting as a friendly conversational expert. Give your advice and recommend 2 or 3 exact font names from our list that match the user's project. 
                 Return JSON format with structure: {"reply": "...", "recommendedFonts": ["FontName1", "FontName2"]}`;
 
@@ -638,7 +633,7 @@
                 
                 document.getElementById(loadingId).remove();
 
-                let respObj = { reply: "أهلاً بك! بناءً على طلبك، أقترح عليك تجربة الخطوط التالية:", recommendedFonts: ["Cairo", "Inter", "Playfair Display"] };
+                let respObj = { reply: "أهلاً بك! بناءً على طلبك من مكتبتنا الواسعة، أقترح عليك تجربة الخطوط التالية:", recommendedFonts: ["Cairo", "Inter", "Playfair Display"] };
                 if(jsonText) {
                     try { respObj = JSON.parse(jsonText); } catch(e) {}
                 }
@@ -709,21 +704,27 @@
                     document.getElementById('scanner').classList.remove('hidden');
                     document.getElementById('agentsFlow').classList.replace('hidden','flex');
 
+                    const stepText = document.getElementById('agentStepText');
+                    stepText.innerText = "الوكيل الأول (ChatGPT & Claude): فحص طبقات الصورة واستخراج النصوص...";
+
+                    await new Promise(r => setTimeout(r, 800));
+                    stepText.innerText = "الوكيل الثاني (Gemini Vision): مقارنة الأنماط عبر مكتبة الخطوط الواسعة (1500+ خط)...";
+
                     try {
                         const apiKey = "";
                         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-                        const fontOptionsList = ["Inter", "Roboto", "Cairo", "Tajawal", "Poppins", "Montserrat", "Playfair Display", "JetBrains Mono", "Oswald", "Amiri", "Almarai", "Outfit", "Satoshi", "Switzer", "Cabinet Grotesk", "Open Sans", "Lato", "Ubuntu", "Raleway", "Space Grotesk"];
+                        const fontOptionsList = masterFontsPool;
 
                         const payload = {
                             contents: [{
                                 role: "user",
                                 parts: [
-                                    { text: `Analyze this image thoroughly. Identify and extract all distinct text elements and categorize them hierarchically into 4 distinct roles: 
+                                    { text: `Analyze this image thoroughly using the broad typography library. Identify and extract all distinct text elements and categorize them hierarchically into 4 distinct roles: 
                                     1. "Heading" (العنوان الرئيسي / البارز)
                                     2. "Subheading" (العنوان الفرعي / التصنيف)
                                     3. "Body" (النص العادي / الفقرات)
                                     4. "Accent" (الأزرار أو العناصر المميزة)
-                                    For each category, extract the detected text and assign the most suitable matching font from this web font list: [${fontOptionsList.join(", ")}]. 
+                                    For each category, extract the detected text and assign the most suitable matching font from this extensive web font library: [${fontOptionsList.join(", ")}]. 
                                     Return a JSON array of objects with structure: [{"role": "Heading", "text": "...", "font": "..."}, {"role": "Subheading", "text": "...", "font": "..."}, {"role": "Body", "text": "...", "font": "..."}, {"role": "Accent", "text": "...", "font": "..."}].` },
                                     { inlineData: { mimeType: mimeType, data: base64Data } }
                                 ]
@@ -765,6 +766,7 @@
 
                         document.getElementById('scanner').classList.add('hidden');
                         document.getElementById('analysisSpinner').className = "fa-solid fa-check text-emerald-400 ml-auto";
+                        stepText.innerText = "تم اكتمال التحليل بنجاح عبر وكلاء الذكاء الاصطناعي ومكتبة الخطوط الواسعة!";
                         
                         const container = document.getElementById('extractedFontsList');
                         container.innerHTML = '';
@@ -798,7 +800,7 @@
                                         ${item.text}
                                     </div>
                                 </div>
-                                <button onclick="applyExtractedFont('${matchedFont}', '${item.text.replace(/'/g, "\\'")}')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-2 mt-1">
+                                <button onclick="applyExtractedFont('${matchedFont}', '${item.text.replace(/'/g, "\\'")}'); closeAgentDetective();" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-2 mt-1">
                                     <i class="fa-solid fa-arrow-left"></i> تطبيق هذا الخط في العرض الرئيسي
                                 </button>
                             `;
@@ -808,6 +810,7 @@
                     } catch (err) {
                         document.getElementById('scanner').classList.add('hidden');
                         document.getElementById('analysisSpinner').className = "fa-solid fa-triangle-exclamation text-red-400 ml-auto";
+                        stepText.innerText = "حدث خطأ أثناء الاتصال بوكلاء التحليل.";
                     }
                 }
                 reader.readAsDataURL(file);
@@ -819,7 +822,6 @@
             changeFont(fontName);
             document.getElementById('customTextInput').value = text;
             handleTextInput(text);
-            closeAgentDetective();
         }
 
         window.onload = initApp;
